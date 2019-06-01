@@ -32,9 +32,9 @@ eq.on('ready', () => {
             done( null, 'Nothing to do.');
         } else 
         if (evt === 'update') {
-            console.log('Beginning upload: ', targetPath);
+            console.log('Beginning upload:', targetPath);
             bucket.upload( sourcePath, { destination: targetPath } ).then( ( file ) => {
-                console.log('Upload completed, generation:', file[0].metadata.generation);
+                console.log('Upload complete:', targetPath);
                 done(null, {result: 'Uploaded', file: targetPath, generation: file[0].metadata.generation});
             }).catch( ( err ) => {
                 done( err );
@@ -46,10 +46,8 @@ eq.on('ready', () => {
                 if ( exists[0] ) {
                     file.delete((err, resp) => {
                         if (err) {
-                            console.log( resp );
                             done( err );
                         } else {
-                            console.log('Remove completed for', targetPath);
                             done(null, {result: 'Deleted', file: targetPath});
                         }
                     });
