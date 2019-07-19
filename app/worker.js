@@ -2,12 +2,10 @@ const {Storage} = require('@google-cloud/storage');
 const Queue = require('bee-queue');
 
 const PROJECT_ID = process.env.PROJECT_ID;
-const KEY_FILE = '/keyfile';
 const BUCKET_NAME = process.env.BUCKET_NAME;
 
 const storage = new Storage({
-    projectId: PROJECT_ID,
-    keyFilename: KEY_FILE
+    projectId: PROJECT_ID
 });
 const bucket = storage.bucket( BUCKET_NAME );
 
