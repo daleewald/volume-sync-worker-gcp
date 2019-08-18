@@ -10,7 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "@google-cloud/storage": "^2.5.0",
-    "bee-queue": "^1.2.2"
+    "bee-queue": "^1.2.2",
+    "redis": "^2.8.0"
   },
   "devDependencies": {
     "nodemon": "^1.19.1"
