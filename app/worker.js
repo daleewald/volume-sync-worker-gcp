@@ -5,17 +5,19 @@ const GCPUtility = require('./gcp-utility.js');
 const PROJECT_ID = process.env.PROJECT_ID;
 const KEY_FILE = process.env.GCP_KEY_FILE_FULL_PATH;
 
-console.log('create queue for worker');
-const eq = new Queue('watchEvents', {
+let queueName = 'GCP-INVENTORY-EVENTS';
+console.log('Open Queue', queueName);
+const eq = new Queue(queueName, {
     redis: {
         host: 'redis'
     }
 });
 
+// redis client for general cache support
 const rclient = redis.createClient( { host: 'redis' });
 
 eq.on('ready', () => {
-    console.log('Worker ready');
+    console.log('GCP Queue Worker ready');
     
     eq.process((job, done) => {
         const evt = job.data.event;
