@@ -1,12 +1,15 @@
 const redis = require('redis');
 const Queue = require('bee-queue');
+const logger = require('./logger');
 const GCPUtility = require('./gcp-utility.js');
 
 const PROJECT_ID = process.env.PROJECT_ID;
 const KEY_FILE = process.env.GCP_KEY_FILE_FULL_PATH;
 
-console.log('create queue for worker');
-const eq = new Queue('watchEvents', {
+let queueName = 'GCP-INVENTORY-EVENTS';
+
+logger.info('Open Queue', queueName);
+const eq = new Queue(queueName, {
     redis: {
         host: 'redis'
     }
@@ -15,11 +18,11 @@ const eq = new Queue('watchEvents', {
 const rclient = redis.createClient( { host: 'redis' });
 
 eq.on('ready', () => {
-    console.log('Worker ready');
+    logger.info('Worker ready');
     
     eq.process((job, done) => {
         const evt = job.data.event;
-        console.log('Handling', evt);
+        logger.debug('Handling', evt);
         
         if (evt === 'addDir' || evt === 'removeDir') {
             done( null, 'Nothing to do.');
@@ -28,13 +31,13 @@ eq.on('ready', () => {
             const gcpUtility = new GCPUtility( PROJECT_ID, KEY_FILE, bucketName );
             if (evt === 'inventory') {
                 gcpUtility.inventory(job.data.projection).then( ( result ) => {
-                    const cacheKey = [bucketName,'inventory'].join('::');
-                    console.log('Cache inventory; key =', cacheKey);
+                    const cacheKey = [queueName, bucketName,'inventory'].join(':');
+                    logger.debug('Cache inventory; key =', cacheKey);
                     rclient.set(cacheKey, JSON.stringify( result ), ( err, reply ) => {
                         if ( err ) {
-                            console.log('ERROR', err);
+                            logger.error('ERROR', err);
+                            done( err );
                         } else {
-                            console.log( reply );
                             done( null, cacheKey );
                         }
                     });
@@ -59,5 +62,5 @@ eq.on('ready', () => {
 });
 
 eq.on('error', (err) => {
-    console.log('Queue error: ', err.message);
+    logger.error(queueName, 'error: ', err.message);
 });

@@ -1,4 +1,5 @@
 const {Storage} = require('@google-cloud/storage');
+const logger = require('./logger');
 
 class GCPUtility {
     storage;
@@ -21,9 +22,9 @@ class GCPUtility {
     }
 
     async upload( sourcePath, targetPath ) {
-        console.log('Beginning upload:', targetPath);
+        logger.debug('Beginning upload:', targetPath);
         return this.bucket.upload( sourcePath, { destination: targetPath } ).then( ( file ) => {
-            console.log('Upload complete:', targetPath);
+            logger.debug('Upload complete:', targetPath);
             return {result: 'Uploaded', file: targetPath, generation: file[0].metadata.generation};
         });
     }
