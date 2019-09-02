@@ -15,6 +15,7 @@ const eq = new Queue(queueName, {
     }
 });
 
+// redis client for general cache support
 const rclient = redis.createClient( { host: 'redis' });
 
 const subClient = rclient.duplicate();
